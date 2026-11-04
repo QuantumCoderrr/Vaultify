@@ -15,7 +15,8 @@ Thank you for considering contributing to Vaultify! We welcome contributions fro
 ## Code Style
 
 - Follow PEP8 for Python
-- Use ES6+ syntax for JavaScript/React
+- Use modern (ES2020+) vanilla JavaScript — no build step
+- Run `python manage.py test vault` before opening a PR
 - Keep functions modular and well-commented
 - Ensure your code is linted and tested
 

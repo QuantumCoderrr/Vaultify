@@ -1,0 +1,47 @@
+{% extends "vault/app_base.html" %}
+{% load vault_tags %}
+{% block title %}Activity log{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1 class="page-title">Activity log</h1>
+    <p class="page-sub">A tamper-evident trail of everything that happens in your vault.</p>
+  </div>
+</div>
+
+<div class="filters">
+  <a class="chip {% if not active_action %}is-active{% endif %}" href="{% url 'vault:activity' %}">All</a>
+  {% for value, label in actions %}
+    <a class="chip {% if active_action == value %}is-active{% endif %}" href="?action={{ value }}">{{ label }}</a>
+  {% endfor %}
+</div>
+
+<div class="card">
+  {% if page.object_list %}
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>Event</th><th>Item</th><th class="hide-mobile">IP address</th><th>When</th></tr></thead>
+        <tbody>
+          {% for log in page %}
+            <tr>
+              <td><span class="row" style="gap:10px"><span class="tl-icon tone-{{ log.tone }}"><svg class="icon"><use href="#i-{{ log.action|action_icon }}"></use></svg></span>{{ log.get_action_display }}</span></td>
+              <td>{% if log.item %}<a href="{{ log.item.get_absolute_url }}">{{ log.item_title }}</a>{% else %}<span class="muted">{{ log.item_title|default:"—" }}</span>{% endif %}</td>
+              <td class="hide-mobile mono muted" style="font-size:13px">{{ log.ip_address|default:"—" }}</td>
+              <td class="muted" title="{{ log.created_at }}">{{ log.created_at|timesince }} ago</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% if page.has_other_pages %}
+      <div class="pagination">
+        {% if page.has_previous %}<a class="btn btn-sm" href="?page={{ page.previous_page_number }}{% if active_action %}&action={{ active_action }}{% endif %}"><svg class="icon icon-sm"><use href="#i-arrow-left"></use></svg> Newer</a>{% endif %}
+        <span class="muted" style="font-size:13px">Page {{ page.number }} of {{ page.paginator.num_pages }}</span>
+        {% if page.has_next %}<a class="btn btn-sm" href="?page={{ page.next_page_number }}{% if active_action %}&action={{ active_action }}{% endif %}">Older <svg class="icon icon-sm"><use href="#i-arrow-right"></use></svg></a>{% endif %}
+      </div>
+    {% endif %}
+  {% else %}
+    <div class="empty"><div class="empty-art"><svg class="icon"><use href="#i-activity"></use></svg></div><h3>No activity yet</h3></div>
+  {% endif %}
+</div>
+{% endblock %}

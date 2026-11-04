@@ -11,3 +11,11 @@ db.sqlite3
 media/
 staticfiles/
 
+.venv/
+venv/
+env/
+.coverage
+htmlcov/
+.DS_Store
+.idea/
+.vscode/

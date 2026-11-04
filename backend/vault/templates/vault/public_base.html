@@ -1,0 +1,19 @@
+{% extends "vault/base.html" %}
+{% block body %}
+<nav class="public-nav">
+  <a class="brand" href="{% url 'landing' %}" style="padding:0">
+    <span class="brand-mark"><svg class="icon"><use href="#i-shield"></use></svg></span>
+    Vaultify
+  </a>
+  <div class="row">
+    <button class="icon-btn" data-theme-toggle aria-label="Toggle theme"><svg class="icon"><use href="#i-sun"></use></svg></button>
+    {% if user.is_authenticated %}
+      <a class="btn btn-primary" href="{% url 'vault:dashboard' %}">Open vault</a>
+    {% else %}
+      <a class="btn btn-ghost" href="{% url 'login' %}">Sign in</a>
+      <a class="btn btn-primary" href="{% url 'signup' %}">Get started</a>
+    {% endif %}
+  </div>
+</nav>
+{% block public %}{% endblock %}
+{% endblock %}

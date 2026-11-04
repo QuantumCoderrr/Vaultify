@@ -1,0 +1,31 @@
+{% extends "vault/app_base.html" %}
+{% block title %}{% if is_new %}New item{% else %}Edit {{ item.title }}{% endif %}{% endblock %}
+{% block content %}
+<a class="btn btn-ghost btn-sm" href="{% if item %}{{ item.get_absolute_url }}{% else %}{% url 'vault:dashboard' %}{% endif %}" style="margin-bottom:16px"><svg class="icon icon-sm"><use href="#i-arrow-left"></use></svg> Back</a>
+<div class="page-head">
+  <div>
+    <h1 class="page-title">{% if is_new %}Add to your vault{% else %}Edit “{{ item.title }}”{% endif %}</h1>
+    <p class="page-sub">Secrets and notes are encrypted before they touch the database.</p>
+  </div>
+</div>
+
+<form method="post" class="card" style="max-width:820px" novalidate>
+  {% csrf_token %}
+  {% for error in form.non_field_errors %}<div class="alert alert-danger" style="margin-bottom:16px">{{ error }}</div>{% endfor %}
+  <div class="form-grid">
+    {% include "vault/_field.html" with field=form.title %}
+    {% include "vault/_field.html" with field=form.category %}
+    {% include "vault/_field.html" with field=form.username %}
+    {% include "vault/_field.html" with field=form.url %}
+    {% include "vault/_field.html" with field=form.secret span=True generate=True %}
+    {% include "vault/_field.html" with field=form.notes span=True %}
+    {% include "vault/_field.html" with field=form.tags %}
+    <div class="field" style="justify-content:flex-end;padding-bottom:10px">{% include "vault/_field.html" with field=form.favorite %}</div>
+  </div>
+  <hr class="divider">
+  <div class="row" style="justify-content:flex-end">
+    <a class="btn btn-ghost" href="{% if item %}{{ item.get_absolute_url }}{% else %}{% url 'vault:dashboard' %}{% endif %}">Cancel</a>
+    <button class="btn btn-primary" type="submit"><svg class="icon"><use href="#i-check"></use></svg> {% if is_new %}Save item{% else %}Save changes{% endif %}</button>
+  </div>
+</form>
+{% endblock %}

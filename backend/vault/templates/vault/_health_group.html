@@ -1,0 +1,20 @@
+{% load vault_tags %}
+<div class="card">
+  <div class="card-head">
+    <span class="row" style="gap:10px"><span class="tl-icon tone-{{ tone }}"><svg class="icon"><use href="#i-{{ icon }}"></use></svg></span><span class="card-title">{{ title }}</span></span>
+    <span class="badge badge-{{ tone }}">{{ items|length }}</span>
+  </div>
+  {% if items %}
+    <div class="timeline">
+      {% for item in items %}
+        <a class="tl-item" href="{% url 'vault:item_update' item.pk %}" style="align-items:center">
+          <span class="item-logo cat-{{ item.category }}" style="width:34px;height:34px;font-size:12px;border-radius:10px">{{ item.initials }}</span>
+          <div class="grow"><div class="tl-title truncate">{{ item.title }}</div><div class="tl-meta">{{ item.strength_score|strength_label }} · changed {{ item.secret_changed_at|timesince }} ago</div></div>
+          <span class="btn btn-sm">Fix</span>
+        </a>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="muted row" style="gap:8px"><svg class="icon" style="color:var(--success)"><use href="#i-check-circle"></use></svg>{{ empty }}</p>
+  {% endif %}
+</div>

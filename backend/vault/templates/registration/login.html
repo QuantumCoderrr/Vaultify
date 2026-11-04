@@ -1,0 +1,29 @@
+{% extends "vault/public_base.html" %}
+{% block title %}Sign in{% endblock %}
+{% block public %}
+<div class="auth-wrap">
+  <div class="auth-card fade-up">
+    <div class="card">
+      <div class="stat-icon tone-primary" style="margin-bottom:18px"><svg class="icon"><use href="#i-lock"></use></svg></div>
+      <h1>Unlock your vault</h1>
+      <p class="muted" style="margin:6px 0 24px">Welcome back. Enter your master password to continue.</p>
+
+      <form method="post" class="stack" novalidate>
+        {% csrf_token %}
+        {% if lockout_message %}
+          <div class="alert alert-warning"><svg class="icon"><use href="#i-clock"></use></svg><span>{{ lockout_message }}</span></div>
+        {% endif %}
+        {% for error in form.non_field_errors %}
+          <div class="alert alert-danger"><svg class="icon"><use href="#i-alert"></use></svg><span>{{ error }}</span></div>
+        {% endfor %}
+        {% include "vault/_field.html" with field=form.username %}
+        {% include "vault/_field.html" with field=form.password %}
+        <input type="hidden" name="next" value="{{ next }}">
+        <button class="btn btn-primary btn-lg btn-block" type="submit">Unlock <svg class="icon"><use href="#i-arrow-right"></use></svg></button>
+      </form>
+      <hr class="divider">
+      <p class="muted" style="text-align:center;font-size:14px">New to Vaultify? <a class="grad-text" style="font-weight:700" href="{% url 'signup' %}">Create an account</a></p>
+    </div>
+  </div>
+</div>
+{% endblock %}
