@@ -1,0 +1,32 @@
+{% load vault_tags %}
+<article class="item">
+  <div class="item-head">
+    <span class="item-logo cat-{{ item.category }}">{{ item.initials }}</span>
+    <div class="grow">
+      <a class="item-title truncate stretched" style="display:block" href="{{ item.get_absolute_url }}">{{ item.title }}</a>
+      <div class="item-sub truncate">{{ item.username|default:item.domain|default:item.get_category_display }}</div>
+    </div>
+    <form class="fav-form" method="post" action="{% url 'vault:item_favorite' item.pk %}">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ request.get_full_path }}">
+      <button class="icon-btn {% if item.favorite %}is-active{% endif %}" type="submit" aria-label="Toggle favourite" title="Favourite"><svg class="icon"><use href="#i-star"></use></svg></button>
+    </form>
+  </div>
+  <div class="row wrap" style="gap:6px">
+    <span class="badge"><svg class="icon icon-sm"><use href="#i-{{ item.category|category_icon }}"></use></svg>{{ item.get_category_display }}</span>
+    {% if item.strength_score is not None %}<span class="badge badge-{{ item.strength_score|strength_tone }}">{{ item.strength_score|strength_label }}</span>{% endif %}
+    {% for tag in item.tag_list|slice:":2" %}<span class="badge">#{{ tag }}</span>{% endfor %}
+  </div>
+  <div class="item-foot">
+    <span class="faint" style="font-size:12px">Updated {{ item.updated_at|timesince }} ago</span>
+    <div class="item-actions">
+      {% if item.encrypted_secret %}
+        <button class="icon-btn" data-copy-secret="{% url 'vault:item_reveal' item.pk %}" title="Copy password" aria-label="Copy password"><svg class="icon"><use href="#i-copy"></use></svg></button>
+      {% endif %}
+      {% if item.url %}
+        <a class="icon-btn" href="{{ item.url }}" target="_blank" rel="noopener noreferrer" title="Open website" aria-label="Open website"><svg class="icon"><use href="#i-external"></use></svg></a>
+      {% endif %}
+      <a class="icon-btn" href="{% url 'vault:item_update' item.pk %}" title="Edit" aria-label="Edit"><svg class="icon"><use href="#i-edit"></use></svg></a>
+    </div>
+  </div>
+</article>

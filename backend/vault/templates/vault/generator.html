@@ -1,0 +1,78 @@
+{% extends "vault/app_base.html" %}
+{% block title %}Password generator{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1 class="page-title">Password generator</h1>
+    <p class="page-sub">Cryptographically secure, generated server-side with Python's <code>secrets</code> module.</p>
+  </div>
+</div>
+
+<div class="detail-grid" id="generator">
+  <div class="card stack" style="gap:22px">
+    <div class="gen-output">
+      <div class="gen-value" id="gen-value" data-value="{{ initial }}">{{ initial }}</div>
+      <button class="icon-btn" id="gen-refresh" title="Regenerate" aria-label="Regenerate"><svg class="icon"><use href="#i-refresh"></use></svg></button>
+      <button class="btn btn-primary" id="gen-copy"><svg class="icon"><use href="#i-copy"></use></svg> Copy</button>
+    </div>
+    <div id="gen-meter">
+      <div class="meter" data-score=""><span></span><span></span><span></span><span></span><span></span></div>
+      <div class="meter-label" style="margin-top:8px"><span id="gen-label">Calculating…</span></div>
+    </div>
+
+    <div class="row-between wrap">
+      <span class="label">Type</span>
+      <div class="seg" role="tablist">
+        <button type="button" class="is-active" data-mode="password">Password</button>
+        <button type="button" data-mode="passphrase">Passphrase</button>
+      </div>
+    </div>
+
+    <div data-mode-panel="password" class="stack">
+      <div class="field">
+        <div class="row-between"><label for="gen-length">Length</label><b id="gen-length-out" class="mono">20</b></div>
+        <input class="range" type="range" id="gen-length" min="8" max="64" value="20">
+      </div>
+      <div class="options">
+        <label class="option">Lowercase (a-z)<span class="switch"><input type="checkbox" id="opt-lower" checked><span class="slider"></span></span></label>
+        <label class="option">Uppercase (A-Z)<span class="switch"><input type="checkbox" id="opt-upper" checked><span class="slider"></span></span></label>
+        <label class="option">Numbers (0-9)<span class="switch"><input type="checkbox" id="opt-digits" checked><span class="slider"></span></span></label>
+        <label class="option">Symbols (!@#)<span class="switch"><input type="checkbox" id="opt-symbols" checked><span class="slider"></span></span></label>
+        <label class="option" style="grid-column:1/-1">Exclude ambiguous characters (I, l, 1, O, 0)<span class="switch"><input type="checkbox" id="opt-ambiguous"><span class="slider"></span></span></label>
+      </div>
+    </div>
+
+    <div data-mode-panel="passphrase" class="stack" hidden>
+      <div class="field">
+        <div class="row-between"><label for="gen-words">Words</label><b id="gen-words-out" class="mono">5</b></div>
+        <input class="range" type="range" id="gen-words" min="3" max="10" value="5">
+      </div>
+      <div class="options">
+        <label class="option">Separator
+          <select class="input" id="opt-sep" style="width:90px;height:36px">
+            <option value="-">-</option><option value=".">.</option><option value="_">_</option><option value=" ">space</option>
+          </select>
+        </label>
+        <label class="option">Capitalise<span class="switch"><input type="checkbox" id="opt-cap" checked><span class="slider"></span></span></label>
+        <label class="option" style="grid-column:1/-1">Append a number<span class="switch"><input type="checkbox" id="opt-num" checked><span class="slider"></span></span></label>
+      </div>
+    </div>
+  </div>
+
+  <aside class="stack">
+    <div class="card">
+      <div class="card-title" style="margin-bottom:12px">Recent</div>
+      <div id="gen-history" class="stack" style="gap:8px"></div>
+      <p class="faint" style="font-size:12px;margin-top:12px">Only kept in this browser tab. Click to copy.</p>
+    </div>
+    <div class="card">
+      <div class="card-title" style="margin-bottom:10px">Tips</div>
+      <ul class="muted" style="margin:0;padding-left:18px;font-size:14px;display:grid;gap:6px">
+        <li>Aim for 80+ bits of entropy for important accounts.</li>
+        <li>Passphrases are easier to type and remember.</li>
+        <li>Never reuse a password across sites.</li>
+      </ul>
+    </div>
+  </aside>
+</div>
+{% endblock %}

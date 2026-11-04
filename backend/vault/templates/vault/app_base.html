@@ -1,0 +1,74 @@
+{% extends "vault/base.html" %}
+{% block body %}
+{% with url_name=request.resolver_match.url_name %}
+<div class="shell">
+  <aside class="sidebar" aria-label="Main navigation">
+    <a class="brand" href="{% url 'vault:dashboard' %}">
+      <span class="brand-mark"><svg class="icon"><use href="#i-shield"></use></svg></span>
+      Vaultify
+    </a>
+
+    <div class="nav-section">Vault</div>
+    <a class="nav-link {% if url_name == 'dashboard' and not request.GET.category and not request.GET.favorites %}is-active{% endif %}" href="{% url 'vault:dashboard' %}">
+      <svg class="icon"><use href="#i-grid"></use></svg> All items
+    </a>
+    <a class="nav-link {% if request.GET.favorites == '1' %}is-active{% endif %}" href="{% url 'vault:dashboard' %}?favorites=1">
+      <svg class="icon"><use href="#i-star"></use></svg> Favourites
+    </a>
+    <a class="nav-link {% if request.GET.category == 'login' %}is-active{% endif %}" href="{% url 'vault:dashboard' %}?category=login"><svg class="icon"><use href="#i-key"></use></svg> Logins</a>
+    <a class="nav-link {% if request.GET.category == 'card' %}is-active{% endif %}" href="{% url 'vault:dashboard' %}?category=card"><svg class="icon"><use href="#i-card"></use></svg> Payment cards</a>
+    <a class="nav-link {% if request.GET.category == 'note' %}is-active{% endif %}" href="{% url 'vault:dashboard' %}?category=note"><svg class="icon"><use href="#i-note"></use></svg> Secure notes</a>
+    <a class="nav-link {% if request.GET.category == 'api_key' %}is-active{% endif %}" href="{% url 'vault:dashboard' %}?category=api_key"><svg class="icon"><use href="#i-code"></use></svg> API keys</a>
+    <a class="nav-link {% if request.GET.category == 'wifi' %}is-active{% endif %}" href="{% url 'vault:dashboard' %}?category=wifi"><svg class="icon"><use href="#i-wifi"></use></svg> Wi-Fi</a>
+    <a class="nav-link {% if request.GET.category == 'identity' %}is-active{% endif %}" href="{% url 'vault:dashboard' %}?category=identity"><svg class="icon"><use href="#i-id"></use></svg> Identities</a>
+
+    <div class="nav-section">Tools</div>
+    <a class="nav-link {% if url_name == 'generator' %}is-active{% endif %}" href="{% url 'vault:generator' %}"><svg class="icon"><use href="#i-wand"></use></svg> Generator</a>
+    <a class="nav-link {% if url_name == 'health' %}is-active{% endif %}" href="{% url 'vault:health' %}"><svg class="icon"><use href="#i-pulse"></use></svg> Security health</a>
+    <a class="nav-link {% if url_name == 'activity' %}is-active{% endif %}" href="{% url 'vault:activity' %}"><svg class="icon"><use href="#i-activity"></use></svg> Activity log</a>
+    <a class="nav-link {% if url_name == 'account' %}is-active{% endif %}" href="{% url 'vault:account' %}"><svg class="icon"><use href="#i-settings"></use></svg> Account</a>
+
+    <div class="sidebar-footer">
+      <div class="lock-card" data-lock-seconds="{{ VAULT_SESSION_TIMEOUT }}">
+        <div class="row-between">
+          <span class="row" style="gap:8px"><svg class="icon icon-sm"><use href="#i-clock"></use></svg> Auto-lock in</span>
+          <strong>--:--</strong>
+        </div>
+      </div>
+      <form id="logout-form" method="post" action="{% url 'logout' %}" style="margin-top:10px">
+        {% csrf_token %}
+        <button class="nav-link btn-ghost" style="width:100%;border:0;cursor:pointer;font:inherit" type="submit">
+          <svg class="icon"><use href="#i-lock"></use></svg> Lock vault
+        </button>
+      </form>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <button class="icon-btn menu-toggle" data-sidebar-toggle aria-label="Open menu"><svg class="icon"><use href="#i-menu"></use></svg></button>
+      <form class="search" action="{% url 'vault:dashboard' %}" method="get" role="search">
+        <svg class="icon"><use href="#i-search"></use></svg>
+        <label for="global-search" class="sr-only">Search vault</label>
+        <input id="global-search" class="input" type="search" name="q" value="{{ q|default:'' }}" placeholder="Search your vault…" autocomplete="off">
+        <kbd>/</kbd>
+      </form>
+      <div class="row" style="margin-left:auto">
+        <button class="icon-btn" data-theme-toggle aria-label="Toggle theme" title="Toggle theme">
+          <svg class="icon"><use href="#i-sun"></use></svg>
+        </button>
+        <a class="btn btn-primary hide-mobile" href="{% url 'vault:item_create' %}" data-shortcut-new>
+          <svg class="icon"><use href="#i-plus"></use></svg> New item
+        </a>
+        <a class="icon-btn show-mobile" href="{% url 'vault:item_create' %}" aria-label="New item"><svg class="icon"><use href="#i-plus"></use></svg></a>
+        <a href="{% url 'vault:account' %}" class="avatar" title="{{ user.username }}">{{ user.username|slice:":2"|upper }}</a>
+      </div>
+    </header>
+
+    <main class="content fade-up">
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+</div>
+{% endwith %}
+{% endblock %}
