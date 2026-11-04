@@ -1,0 +1,35 @@
+{% extends "vault/app_base.html" %}
+{% load vault_tags %}
+{% block title %}Security health{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1 class="page-title">Security health</h1>
+    <p class="page-sub">An at-a-glance audit of the {{ report.total }} secret{{ report.total|pluralize }} in your vault.</p>
+  </div>
+</div>
+
+<div class="card" style="margin-bottom:22px">
+  <div class="row wrap" style="gap:34px">
+    <div class="ring" style="--p:{{ report.score }};--c:var(--{{ report.tone }})"><div class="ring-value"><b>{{ report.score }}</b><span>of 100</span></div></div>
+    <div class="grow" style="min-width:240px">
+      <span class="badge badge-{{ report.tone }}">{{ report.grade }}</span>
+      <h2 style="font-size:22px;margin:10px 0 6px">
+        {% if report.score >= 85 %}Your vault is in great shape.{% elif report.score >= 65 %}Pretty good — a few things to tidy up.{% elif report.score >= 40 %}Some secrets need attention.{% else %}Your vault is at risk.{% endif %}
+      </h2>
+      <p class="muted">Score is based on weak and reused passwords, with a smaller penalty for passwords older than {{ report.stale_after_days }} days.</p>
+    </div>
+    <div class="stats" style="grid-template-columns:repeat(3,minmax(110px,1fr));margin:0">
+      <div class="card card-sm"><div class="stat-value" style="color:var(--danger)">{{ report.weak|length }}</div><div class="stat-label">Weak</div></div>
+      <div class="card card-sm"><div class="stat-value" style="color:var(--warning)">{{ report.reused|length }}</div><div class="stat-label">Reused</div></div>
+      <div class="card card-sm"><div class="stat-value" style="color:var(--info)">{{ report.stale|length }}</div><div class="stat-label">Old</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="features" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr))">
+  {% include "vault/_health_group.html" with title="Weak passwords" items=report.weak tone="danger" icon="alert" empty="No weak passwords. Nice!" %}
+  {% include "vault/_health_group.html" with title="Reused passwords" items=report.reused tone="warning" icon="repeat" empty="Every password is unique." %}
+  {% include "vault/_health_group.html" with title="Old passwords" items=report.stale tone="info" icon="clock" empty="All passwords are fresh." %}
+</div>
+{% endblock %}

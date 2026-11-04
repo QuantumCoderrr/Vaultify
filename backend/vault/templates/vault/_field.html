@@ -1,0 +1,26 @@
+<div class="field{% if span %} span-2{% endif %}">
+  {% if field.field.widget.input_type == "checkbox" %}
+    <label class="check-row" for="{{ field.id_for_label }}">{{ field }} {{ field.label }}</label>
+  {% else %}
+    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+    {% if field.field.widget.input_type == "password" %}
+      <div class="input-group">
+        {{ field }}
+        <div class="input-actions">
+          {% if generate %}<button type="button" class="icon-btn" data-generate-into="#{{ field.id_for_label }}" title="Generate password" aria-label="Generate password"><svg class="icon"><use href="#i-wand"></use></svg></button>{% endif %}
+          <button type="button" class="icon-btn" data-toggle-visibility="#{{ field.id_for_label }}" title="Show / hide" aria-label="Show or hide password"><svg class="icon"><use href="#i-eye"></use></svg></button>
+        </div>
+      </div>
+      {% if "data-strength" in field.field.widget.attrs %}
+        <div data-meter-for="{{ field.id_for_label }}">
+          <div class="meter" data-score=""><span></span><span></span><span></span><span></span><span></span></div>
+          <div class="meter-label" style="margin-top:6px"><span data-meter-label>Strength</span><span data-meter-hint></span></div>
+        </div>
+      {% endif %}
+    {% else %}
+      {{ field }}
+    {% endif %}
+    {% if field.help_text and show_help %}<div class="help">{{ field.help_text|safe }}</div>{% endif %}
+  {% endif %}
+  {{ field.errors }}
+</div>

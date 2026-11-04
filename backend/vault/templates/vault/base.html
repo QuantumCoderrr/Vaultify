@@ -1,0 +1,45 @@
+{% load static %}<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Vaultify — an encrypted vault for your passwords, cards, notes and API keys.">
+  <title>{% block title %}Vaultify{% endblock %} · Vaultify</title>
+  <script>
+    try { var t = localStorage.getItem("vaultify-theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+  </script>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%238b5cf6'/><stop offset='1' stop-color='%2322d3ee'/></linearGradient></defs><rect width='32' height='32' rx='9' fill='url(%23g)'/><path d='M16 7l7 2.6v5.6c0 4.6-3 8.2-7 9.8-4-1.6-7-5.2-7-9.8V9.6z' fill='none' stroke='white' stroke-width='2.2' stroke-linejoin='round'/></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'vault/css/app.css' %}">
+  {% block head %}{% endblock %}
+</head>
+<body data-strength-url="{% url 'vault:strength_api' %}" data-generate-url="{% url 'vault:generate_api' %}" class="{% block body_class %}{% endblock %}">
+  {% include "vault/_icons.html" %}
+  {% block body %}{% endblock %}
+
+  <div class="toasts" aria-live="polite">
+    {% for message in messages %}
+      <div class="toast toast-{{ message.tags|default:'info' }}" role="status">
+        <svg class="icon" aria-hidden="true"><use href="#i-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' or message.tags == 'warning' %}alert{% else %}info{% endif %}"></use></svg>
+        <span>{{ message }}</span>
+      </div>
+    {% endfor %}
+  </div>
+
+  <dialog class="modal" id="confirm-modal">
+    <div class="modal-body">
+      <div class="modal-icon tone-danger"><svg class="icon icon-lg"><use href="#i-alert"></use></svg></div>
+      <h3 data-modal-title style="font-size:19px">Are you sure?</h3>
+      <p class="muted" data-modal-text style="margin:8px 0 22px"></p>
+      <div class="row" style="justify-content:flex-end">
+        <button type="button" class="btn" data-modal-cancel>Cancel</button>
+        <button type="button" class="btn btn-danger" data-modal-ok>Delete</button>
+      </div>
+    </div>
+  </dialog>
+
+  <script src="{% static 'vault/js/app.js' %}" defer></script>
+</body>
+</html>

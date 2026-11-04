@@ -1,0 +1,106 @@
+{% extends "vault/app_base.html" %}
+{% load vault_tags %}
+{% block title %}{{ item.title }}{% endblock %}
+{% block content %}
+<a class="btn btn-ghost btn-sm" href="{% url 'vault:dashboard' %}" style="margin-bottom:16px"><svg class="icon icon-sm"><use href="#i-arrow-left"></use></svg> Back to vault</a>
+
+<div class="page-head">
+  <div class="row" style="gap:16px">
+    <span class="item-logo hero-logo cat-{{ item.category }}">{{ item.initials }}</span>
+    <div>
+      <h1 class="page-title">{{ item.title }}</h1>
+      <div class="row wrap" style="gap:6px;margin-top:8px">
+        <span class="badge"><svg class="icon icon-sm"><use href="#i-{{ item.category|category_icon }}"></use></svg>{{ item.get_category_display }}</span>
+        {% if item.favorite %}<span class="badge badge-warning"><svg class="icon icon-sm"><use href="#i-star"></use></svg>Favourite</span>{% endif %}
+        {% for tag in item.tag_list %}<a class="badge" href="{% url 'vault:dashboard' %}?tag={{ tag|urlencode }}">#{{ tag }}</a>{% endfor %}
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <a class="btn" href="{% url 'vault:item_update' item.pk %}"><svg class="icon"><use href="#i-edit"></use></svg> Edit</a>
+    <form method="post" action="{% url 'vault:item_delete' item.pk %}">
+      {% csrf_token %}
+      <button class="btn btn-danger" type="submit" data-confirm="“{{ item.title }}” will be permanently deleted. This cannot be undone." data-confirm-title="Delete this item?"><svg class="icon"><use href="#i-trash"></use></svg> Delete</button>
+    </form>
+  </div>
+</div>
+
+{% if reused or item.is_weak %}
+  <div class="alert alert-warning" style="margin-bottom:20px">
+    <svg class="icon"><use href="#i-alert"></use></svg>
+    <span>{% if reused %}This password is <b>reused</b> in other items.{% endif %} {% if item.is_weak %}This password is <b>weak</b>.{% endif %} Consider <a href="{% url 'vault:item_update' item.pk %}" style="text-decoration:underline">changing it</a>.</span>
+  </div>
+{% endif %}
+
+<div class="detail-grid">
+  <div class="card">
+    {% if item.username %}
+    <div class="kv">
+      <span class="kv-label">Username</span>
+      <div class="kv-value"><span class="grow truncate">{{ item.username }}</span>
+        <button class="icon-btn" data-copy-text="{{ item.username }}" data-copy-label="Username copied" aria-label="Copy username"><svg class="icon"><use href="#i-copy"></use></svg></button></div>
+    </div>
+    {% endif %}
+    {% if item.encrypted_secret %}
+    <div class="kv">
+      <span class="kv-label">{% if item.category == 'card' %}Card number / PIN{% elif item.category == 'api_key' %}Key{% else %}Password{% endif %}</span>
+      <div class="kv-value">
+        <span class="secret-box" id="secret-value">••••••••••••••</span>
+        <button class="icon-btn" data-reveal="{% url 'vault:item_reveal' item.pk %}" data-target="#secret-value" data-notes-target="#notes-value" aria-label="Reveal" title="Reveal (auto-hides after 20s)"><svg class="icon"><use href="#i-eye"></use></svg></button>
+        <button class="icon-btn" data-copy-secret="{% url 'vault:item_reveal' item.pk %}" aria-label="Copy password" title="Copy"><svg class="icon"><use href="#i-copy"></use></svg></button>
+      </div>
+      {% if item.strength_score is not None %}
+        <div class="meter" data-score="{{ item.strength_score }}" style="max-width:260px"><span></span><span></span><span></span><span></span><span></span></div>
+        <span class="faint" style="font-size:12px">{{ item.strength_score|strength_label }} · last changed {{ item.secret_changed_at|timesince }} ago</span>
+      {% endif %}
+    </div>
+    {% endif %}
+    {% if item.url %}
+    <div class="kv">
+      <span class="kv-label">Website</span>
+      <div class="kv-value"><svg class="icon faint"><use href="#i-globe"></use></svg><a class="grow truncate" href="{{ item.url }}" target="_blank" rel="noopener noreferrer">{{ item.url }}</a>
+        <a class="icon-btn" href="{{ item.url }}" target="_blank" rel="noopener noreferrer" aria-label="Open website"><svg class="icon"><use href="#i-external"></use></svg></a></div>
+    </div>
+    {% endif %}
+    {% if item.encrypted_notes %}
+    <div class="kv">
+      <span class="kv-label">Notes</span>
+      <div class="kv-value">
+        <div class="secret-box notes-box" id="notes-value">Hidden — reveal to view</div>
+        {% if not item.encrypted_secret %}
+          <button class="icon-btn" data-reveal="{% url 'vault:item_reveal' item.pk %}" data-target="#notes-value" aria-label="Reveal"><svg class="icon"><use href="#i-eye"></use></svg></button>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+    {% if not item.username and not item.encrypted_secret and not item.url and not item.encrypted_notes %}
+      <p class="muted">This item has no details yet. <a href="{% url 'vault:item_update' item.pk %}" class="grad-text">Add some</a>.</p>
+    {% endif %}
+  </div>
+
+  <aside class="stack">
+    <div class="card">
+      <div class="card-title" style="margin-bottom:12px">Details</div>
+      <div class="stack" style="gap:10px;font-size:14px">
+        <div class="row-between"><span class="muted">Created</span><span>{{ item.created_at|date:"M j, Y" }}</span></div>
+        <div class="row-between"><span class="muted">Updated</span><span>{{ item.updated_at|timesince }} ago</span></div>
+        <div class="row-between"><span class="muted">Last accessed</span><span>{% if item.last_accessed_at %}{{ item.last_accessed_at|timesince }} ago{% else %}Never{% endif %}</span></div>
+        <div class="row-between"><span class="muted">Encryption</span><span class="badge badge-success"><svg class="icon icon-sm"><use href="#i-lock"></use></svg>Fernet</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title" style="margin-bottom:6px">Item history</div>
+      {% if history %}
+        <div class="timeline">
+          {% for log in history %}
+            <div class="tl-item">
+              <span class="tl-icon tone-{{ log.tone }}"><svg class="icon"><use href="#i-{{ log.action|action_icon }}"></use></svg></span>
+              <div class="grow"><div class="tl-title">{{ log.get_action_display }}</div><div class="tl-meta">{{ log.created_at|timesince }} ago{% if log.ip_address %} · {{ log.ip_address }}{% endif %}</div></div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}<p class="muted">No history yet.</p>{% endif %}
+    </div>
+  </aside>
+</div>
+{% endblock %}

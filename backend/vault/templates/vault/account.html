@@ -1,0 +1,50 @@
+{% extends "vault/app_base.html" %}
+{% block title %}Account{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1 class="page-title">Account</h1>
+    <p class="page-sub">Signed in as <b>{{ user.username }}</b>{% if user.email %} · {{ user.email }}{% endif %} · member since {{ user.date_joined|date:"M Y" }}</p>
+  </div>
+</div>
+
+<div class="detail-grid">
+  <div class="stack" style="gap:22px">
+    <form method="post" class="card stack">
+      {% csrf_token %}
+      <input type="hidden" name="intent" value="password">
+      <div><div class="card-title">Change master password</div><p class="muted" style="font-size:14px;margin-top:4px">You'll stay signed in on this device.</p></div>
+      {% include "vault/_field.html" with field=password_form.old_password %}
+      {% include "vault/_field.html" with field=password_form.new_password1 %}
+      {% include "vault/_field.html" with field=password_form.new_password2 %}
+      <div><button class="btn btn-primary" type="submit"><svg class="icon"><use href="#i-key"></use></svg> Update password</button></div>
+    </form>
+
+    <form method="post" action="{% url 'vault:export' %}" class="card stack">
+      {% csrf_token %}
+      <div><div class="card-title">Export vault</div><p class="muted" style="font-size:14px;margin-top:4px">Download all {{ item_count }} item{{ item_count|pluralize }} as a <b>decrypted</b> JSON file. Store it somewhere safe.</p></div>
+      <div class="field"><label for="export-password">Confirm password</label><input id="export-password" class="input" type="password" name="password" required placeholder="Master password"></div>
+      <div><button class="btn" type="submit"><svg class="icon"><use href="#i-download"></use></svg> Download export</button></div>
+    </form>
+  </div>
+
+  <aside class="stack">
+    <div class="card">
+      <div class="card-title" style="margin-bottom:12px">Session</div>
+      <div class="stack" style="gap:10px;font-size:14px">
+        <div class="row-between"><span class="muted">Auto-lock after</span><span>{% widthratio VAULT_SESSION_TIMEOUT 60 1 %} min idle</span></div>
+        <div class="row-between"><span class="muted">Last sign-in</span><span>{{ user.last_login|timesince }} ago</span></div>
+        <div class="row-between"><span class="muted">API access</span><code style="font-size:12px">/api/v1/</code></div>
+      </div>
+    </div>
+    <form method="post" class="card stack" style="border-color:rgba(248,113,113,.3)">
+      {% csrf_token %}
+      <input type="hidden" name="intent" value="delete">
+      <div><div class="card-title" style="color:var(--danger)">Danger zone</div><p class="muted" style="font-size:14px;margin-top:4px">Permanently delete your account and every item in your vault.</p></div>
+      {{ delete_form.password }}
+      {{ delete_form.password.errors }}
+      <button class="btn btn-danger" type="submit" data-confirm="Your account and all {{ item_count }} vault item{{ item_count|pluralize }} will be erased forever." data-confirm-title="Delete your account?"><svg class="icon"><use href="#i-trash"></use></svg> Delete account</button>
+    </form>
+  </aside>
+</div>
+{% endblock %}

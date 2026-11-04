@@ -1,0 +1,65 @@
+{% extends "vault/public_base.html" %}
+{% block title %}Your secrets, encrypted{% endblock %}
+{% block public %}
+<section class="hero">
+  <div class="fade-up">
+    <span class="eyebrow"><span class="dot"></span> AES-encrypted · Open source · Self-hostable</span>
+    <h1>Every secret.<br><span class="grad-text">One vault.</span></h1>
+    <p class="lead">Vaultify keeps your passwords, payment cards, API keys and private notes encrypted at rest — with a password generator, security health checks and a full audit trail built in.</p>
+    <div class="hero-cta">
+      <a class="btn btn-primary btn-lg" href="{% url 'signup' %}">Create your vault <svg class="icon"><use href="#i-arrow-right"></use></svg></a>
+      <a class="btn btn-lg" href="{% url 'login' %}">Sign in</a>
+    </div>
+    <div class="hero-trust">
+      <span><svg class="icon icon-sm"><use href="#i-lock"></use></svg> Fernet encryption</span>
+      <span><svg class="icon icon-sm"><use href="#i-clock"></use></svg> Auto-lock sessions</span>
+      <span><svg class="icon icon-sm"><use href="#i-code"></use></svg> REST API + JWT</span>
+    </div>
+  </div>
+
+  <div class="mock fade-up" style="animation-delay:.12s" aria-hidden="true">
+    <div class="mock-glow"></div>
+    <div class="mock-window">
+      <div class="mock-bar"><i></i><i></i><i></i></div>
+      <div class="mock-body">
+        <div class="row-between" style="margin-bottom:6px">
+          <div><div class="faint" style="font-size:12px">Security score</div><div style="font-size:26px;font-weight:800">92 <span class="badge badge-success">Excellent</span></div></div>
+          <div class="ring ring-sm" style="--p:92;--c:var(--success)"><div class="ring-value"><b>92</b></div></div>
+        </div>
+        <div class="mock-row"><span class="item-logo cat-login">GH</span><div class="grow"><div class="item-title">GitHub</div><div class="item-sub">dev@vaultify.app</div></div><span class="mock-pw">••••••••</span></div>
+        <div class="mock-row"><span class="item-logo cat-card">VI</span><div class="grow"><div class="item-title">Visa Platinum</div><div class="item-sub">•••• 4242</div></div><span class="badge badge-success">Strong</span></div>
+        <div class="mock-row"><span class="item-logo cat-api_key">OP</span><div class="grow"><div class="item-title">Production API key</div><div class="item-sub">sk_live_…</div></div><span class="mock-pw">••••••••</span></div>
+        <div class="mock-row"><span class="item-logo cat-wifi">HO</span><div class="grow"><div class="item-title">Home Wi-Fi</div><div class="item-sub">Network: Orbit-5G</div></div><span class="badge badge-warning">Fair</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-head">
+    <h2>Built like a real password manager</h2>
+    <p>Everything you expect from a modern vault, in a clean Django codebase you can read in an afternoon.</p>
+  </div>
+  <div class="features">
+    <div class="card feature"><div class="stat-icon tone-primary"><svg class="icon"><use href="#i-lock"></use></svg></div><h3>Encrypted at rest</h3><p>Secrets and notes are encrypted with Fernet (AES + HMAC) and support zero-downtime key rotation via MultiFernet.</p></div>
+    <div class="card feature"><div class="stat-icon tone-success"><svg class="icon"><use href="#i-pulse"></use></svg></div><h3>Security health</h3><p>Spot weak, reused and stale passwords instantly — reuse is detected with keyed fingerprints, never by decrypting everything.</p></div>
+    <div class="card feature"><div class="stat-icon tone-info"><svg class="icon"><use href="#i-wand"></use></svg></div><h3>Password generator</h3><p>Cryptographically secure passwords and memorable passphrases, with live entropy scoring.</p></div>
+    <div class="card feature"><div class="stat-icon tone-warning"><svg class="icon"><use href="#i-activity"></use></svg></div><h3>Audit trail</h3><p>Every sign-in, reveal, copy, edit and export is logged with IP and timestamp so nothing happens silently.</p></div>
+    <div class="card feature"><div class="stat-icon tone-danger"><svg class="icon"><use href="#i-shield"></use></svg></div><h3>Hardened by default</h3><p>Brute-force lockout, auto-locking sessions, CSRF protection, strict cookies and owner-scoped data access.</p></div>
+    <div class="card feature"><div class="stat-icon tone-primary"><svg class="icon"><use href="#i-code"></use></svg></div><h3>REST API</h3><p>A full Django REST Framework API with JWT auth for building mobile apps, CLIs or browser extensions on top.</p></div>
+  </div>
+</section>
+
+<section class="section" style="padding-top:20px">
+  <div class="cta-band">
+    <h2>Lock it down in under a minute.</h2>
+    <p>Create an account and start adding secrets — no credit card, no tracking.</p>
+    <a class="btn btn-primary btn-lg" href="{% url 'signup' %}">Get started for free <svg class="icon"><use href="#i-arrow-right"></use></svg></a>
+  </div>
+</section>
+
+<footer class="footer">
+  <span>© {% now "Y" %} Vaultify · MIT licensed</span>
+  <span>Made with Django &amp; Django REST Framework</span>
+</footer>
+{% endblock %}

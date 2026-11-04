@@ -1,0 +1,101 @@
+{% extends "vault/app_base.html" %}
+{% load vault_tags %}
+{% block title %}Vault{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1 class="page-title">{% if favorites %}Favourites{% elif active_category %}{% for c in categories %}{% if c.value == active_category %}{{ c.label }}s{% endif %}{% endfor %}{% else %}Good to see you, {{ user.username }}{% endif %}</h1>
+    <p class="page-sub">{% if q %}Results for “{{ q }}”{% else %}Your vault holds {{ total }} item{{ total|pluralize }}, all encrypted at rest.{% endif %}</p>
+  </div>
+  <a class="btn btn-primary" href="{% url 'vault:item_create' %}{% if active_category %}?category={{ active_category }}{% endif %}"><svg class="icon"><use href="#i-plus"></use></svg> Add item</a>
+</div>
+
+<div class="stats">
+  <div class="card card-sm stat">
+    <div class="stat-icon tone-primary"><svg class="icon"><use href="#i-grid"></use></svg></div>
+    <div class="stat-value">{{ total }}</div><div class="stat-label">Total items</div>
+  </div>
+  <div class="card card-sm stat">
+    <div class="stat-icon tone-warning"><svg class="icon"><use href="#i-star"></use></svg></div>
+    <div class="stat-value">{{ favorite_count }}</div><div class="stat-label">Favourites</div>
+  </div>
+  <div class="card card-sm stat">
+    <div class="stat-icon tone-danger"><svg class="icon"><use href="#i-alert"></use></svg></div>
+    <div class="stat-value">{{ report.weak|length|add:0 }}<span class="faint" style="font-size:16px"> / {{ report.reused|length }}</span></div><div class="stat-label">Weak / reused</div>
+  </div>
+  <a class="card card-sm stat" href="{% url 'vault:health' %}">
+    <div class="stat-icon tone-{{ report.tone }}"><svg class="icon"><use href="#i-pulse"></use></svg></div>
+    <div class="stat-value">{{ report.score }}<span class="faint" style="font-size:16px">/100</span></div><div class="stat-label">Security score · {{ report.grade }}</div>
+  </a>
+</div>
+
+<div class="dash-grid">
+  <section>
+    <div class="filters">
+      <a class="chip {% if not active_category and not favorites %}is-active{% endif %}" href="{% url 'vault:dashboard' %}">All <span class="count">{{ total }}</span></a>
+      {% for c in categories %}{% if c.count %}
+        <a class="chip {% if active_category == c.value %}is-active{% endif %}" href="{% query_toggle 'category' c.value %}">
+          <svg class="icon icon-sm"><use href="#i-{{ c.value|category_icon }}"></use></svg>{{ c.label }} <span class="count">{{ c.count }}</span>
+        </a>
+      {% endif %}{% endfor %}
+    </div>
+    {% if tags %}
+      <div class="filters" style="margin-top:-6px">
+        {% for t in tags %}<a class="chip {% if active_tag == t %}is-active{% endif %}" href="{% query_toggle 'tag' t %}" style="height:28px;font-size:12px">#{{ t }}</a>{% endfor %}
+      </div>
+    {% endif %}
+
+    {% if items %}
+      <div class="items">
+        {% for item in items %}{% include "vault/_item_card.html" %}{% endfor %}
+      </div>
+    {% else %}
+      <div class="card empty">
+        <div class="empty-art"><svg class="icon"><use href="#i-{% if q %}search{% else %}lock{% endif %}"></use></svg></div>
+        {% if q or active_category or favorites or active_tag %}
+          <h3>Nothing matches</h3>
+          <p class="muted" style="margin:8px 0 20px">Try a different search or clear your filters.</p>
+          <a class="btn" href="{% url 'vault:dashboard' %}">Clear filters</a>
+        {% else %}
+          <h3>Your vault is empty</h3>
+          <p class="muted" style="margin:8px 0 20px">Add your first login, card or secure note — it'll be encrypted instantly.</p>
+          <a class="btn btn-primary" href="{% url 'vault:item_create' %}"><svg class="icon"><use href="#i-plus"></use></svg> Add your first item</a>
+        {% endif %}
+      </div>
+    {% endif %}
+  </section>
+
+  <aside class="stack">
+    <div class="card">
+      <div class="card-head"><span class="card-title">Security health</span><a class="btn btn-sm btn-ghost" href="{% url 'vault:health' %}">Details</a></div>
+      <div class="row" style="gap:20px">
+        <div class="ring ring-sm" style="--p:{{ report.score }};--c:var(--{{ report.tone }})"><div class="ring-value"><b>{{ report.score }}</b></div></div>
+        <div class="stack" style="gap:8px;font-size:14px">
+          <span class="row" style="gap:8px"><span class="dot" style="color:var(--danger)"></span>{{ report.weak|length }} weak</span>
+          <span class="row" style="gap:8px"><span class="dot" style="color:var(--warning)"></span>{{ report.reused|length }} reused</span>
+          <span class="row" style="gap:8px"><span class="dot" style="color:var(--info)"></span>{{ report.stale|length }} older than {{ report.stale_after_days }}d</span>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head"><span class="card-title">Recent activity</span><a class="btn btn-sm btn-ghost" href="{% url 'vault:activity' %}">View all</a></div>
+      {% if recent_activity %}
+        <div class="timeline">
+          {% for log in recent_activity %}
+            <div class="tl-item">
+              <span class="tl-icon tone-{{ log.tone }}"><svg class="icon"><use href="#i-{{ log.action|action_icon }}"></use></svg></span>
+              <div class="grow"><div class="tl-title truncate">{{ log.get_action_display }}{% if log.item_title %} · {{ log.item_title }}{% endif %}</div><div class="tl-meta">{{ log.created_at|timesince }} ago</div></div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="muted">No activity yet.</p>
+      {% endif %}
+    </div>
+    <div class="card card-sm faint" style="font-size:13px">
+      <div class="row" style="gap:8px;margin-bottom:6px;color:var(--text-muted)"><svg class="icon icon-sm"><use href="#i-info"></use></svg> <b>Shortcuts</b></div>
+      <kbd>/</kbd> search &nbsp; <kbd>n</kbd> new item &nbsp; <kbd>esc</kbd> blur
+    </div>
+  </aside>
+</div>
+{% endblock %}
